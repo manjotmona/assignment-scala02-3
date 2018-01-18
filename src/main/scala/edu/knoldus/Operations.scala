@@ -38,25 +38,31 @@ class Operations {
   }
 
   def concatenateList[A](list1: List[A], list2: List[A]): List[A] = {
-    def innerConcatenate[A](list1: List[A], list2: List[A], res: List[A]): List[A] = {
+    def innerConcatenate[A](list1: List[A], list2: List[A], result: List[A]): List[A] = {
       (list1, list2) match {
-        case (Nil, Nil) => res
-        case (list1, Nil) => list1
-        case (Nil, head :: tail) => innerConcatenate(Nil, tail, res :+ head)
-        case (list1, _) => innerConcatenate(Nil, list2, list1)
-
+        case (Nil, Nil) => result
+        case (list, Nil) => list
+        case (Nil, head :: tail) => innerConcatenate(Nil, tail, result :+ head)
+        case (list, _) => innerConcatenate(Nil, list2, list)
       }
     }
-
     innerConcatenate(list1, list2, Nil)
   }
+  //This is the better(optimised) SubSequence method.
+  def hasSubSequence2[A](list: List[A], sub: List[A]): Boolean = (list,sub) match {
+    case (_,Nil) => true
+    case (Nil,_) => false
+    case (listHead::listTail,subHead::_)  if listHead != subHead => hasSubSequence(listTail,sub)
+    case (listHead::listTail,subHead::subTail) if listHead == subHead =>hasSubSequence(listTail,subTail)
+
+  }
+
 
   def splitList[A](list: List[A], f: A => Boolean, list1: List[A], list2: List[A]): (List[A], List[A]) = {
     list match {
       case Nil => (list1, list2)
-      case head :: tail if (f(head)) => splitList(tail, f, list1 :+ head, list2)
-      case head :: tail if (!f(head)) => splitList(tail, f, list1, list2 :+ head)
-
+      case head :: tail if f(head) => splitList(tail, f, list1 :+ head, list2)
+      case head :: tail if !f(head) => splitList(tail, f, list1, list2 :+ head)
     }
   }
 }
@@ -73,6 +79,7 @@ object Application extends App {
   val list = List(one, two, three, four, five, six)
   log.info(obj.length(list) + "\n")
   log.info(obj.hasSubSequence(list, List(three, four)) + "\n")
+  log.info(obj.hasSubSequence2(list, List(three, four)) + "\n")
   log.info(obj.concatenateList(List(), List(three, four)) + "\n")
   def function(number: Int): Boolean = { number % 2 == 0 }
   log.info(obj.splitList(list, function, Nil, Nil) + "\n")
